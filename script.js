@@ -1,56 +1,62 @@
-// Function to simulate a promise that resolves after a random time (1 to 3 seconds)
-function createRandomPromise(promiseName) {
-  const delay = Math.random() * 2 + 1;  // Random delay between 1 and 3 seconds
-  return new Promise(resolve => {
-    setTimeout(() => {
-      console.log(`${promiseName} resolved after ${delay.toFixed(3)} seconds`);
-      resolve({ name: promiseName, time: delay.toFixed(3) });
-    }, delay * 1000); // Convert seconds to milliseconds
-  });
-}
+window.onload = function() {
+    // Function to generate a random delay between 1 to 3 seconds
+    function getRandomDelay() {
+        return Math.floor(Math.random() * 3) + 1; // Returns a number between 1 and 3
+    }
 
-// Function to populate the table with the resolved promise data
-function populateTable(promises) {
-  const output = document.getElementById('output');
-  
-  // Remove the "Loading..." row
-  const loadingRow = document.getElementById('loading');
-  loadingRow && loadingRow.remove();  // Ensure the row is removed
+    // Create 3 promises with random delays
+    const promise1 = new Promise((resolve) => {
+        const delay = getRandomDelay();
+        setTimeout(() => {
+            resolve({ promise: 'Promise 1', time: delay });
+        }, delay * 1000);
+    });
 
-  // Add rows for each promise result
-  promises.forEach((promise, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${promise.name}</td>
-      <td>${promise.time}</td>
-    `;
-    output.appendChild(row);
-    console.log(`Added ${promise.name} row with time: ${promise.time}`);
-  });
+    const promise2 = new Promise((resolve) => {
+        const delay = getRandomDelay();
+        setTimeout(() => {
+            resolve({ promise: 'Promise 2', time: delay });
+        }, delay * 1000);
+    });
 
-  // Calculate the total time, which is the maximum time of all promises
-  const totalTime = Math.max(...promises.map(p => parseFloat(p.time))).toFixed(3);
-  console.log(`Total time calculated: ${totalTime}`);
+    const promise3 = new Promise((resolve) => {
+        const delay = getRandomDelay();
+        setTimeout(() => {
+            resolve({ promise: 'Promise 3', time: delay });
+        }, delay * 1000);
+    });
 
-  // Add the total row
-  const totalRow = document.createElement('tr');
-  totalRow.innerHTML = `
-    <td>Total</td>
-    <td>${totalTime}</td>
-  `;
-  output.appendChild(totalRow);
-}
+    // Wait for all promises to resolve using Promise.all
+    Promise.all([promise1, promise2, promise3]).then(results => {
+        // Remove the "Loading..." row
+        document.getElementById('loading').style.display = 'none';
 
-// Create the promises and handle them with Promise.all()
-const promises = [
-  createRandomPromise('Promise 1'),
-  createRandomPromise('Promise 2'),
-  createRandomPromise('Promise 3')
-];
+        // Get the table body
+        const output = document.getElementById('output');
 
-// Show the loading message while waiting for promises to resolve
-Promise.all(promises)
-  .then(results => {
-    console.log('All promises resolved:', results);
-    populateTable(results);
-  });
+        let totalTime = 0;
+        // Loop through the results of the promises and populate the table
+        results.forEach(result => {
+            const row = document.createElement('tr');
+            const promiseCell = document.createElement('td');
+            promiseCell.textContent = result.promise;
+            const timeCell = document.createElement('td');
+            timeCell.textContent = result.time.toFixed(3); // Display time with 3 decimal points
+            row.appendChild(promiseCell);
+            row.appendChild(timeCell);
+            output.appendChild(row);
+
+            totalTime = Math.max(totalTime, result.time); // Track the maximum time
+        });
+
+        // Add the total row
+        const totalRow = document.createElement('tr');
+        const totalCell = document.createElement('td');
+        totalCell.textContent = 'Total';
+        const totalTimeCell = document.createElement('td');
+        totalTimeCell.textContent = totalTime.toFixed(3); // Display total time with 3 decimal points
+        totalRow.appendChild(totalCell);
+        totalRow.appendChild(totalTimeCell);
+        output.appendChild(totalRow);
+    });
+};
