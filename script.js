@@ -13,13 +13,14 @@ function populateTable(promises) {
   const output = document.getElementById('output');
   
   // Remove the "Loading..." row
-  output.innerHTML = '';
+  const loadingRow = document.getElementById('loading');
+  loadingRow.remove();
 
   // Add rows for each promise result
   promises.forEach((promise, index) => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>Promise ${index + 1}</td>
+      <td>${promise.name}</td>
       <td>${promise.time}</td>
     `;
     output.appendChild(row);
