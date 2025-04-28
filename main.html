@@ -1,36 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promise Tracker</title>
-    <style>
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Multiple Promises Tracker</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 8px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-    <h2>Promise Resolution Tracker</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Promise</th>
-                <th>Time Taken (Seconds)</th>
-            </tr>
-        </thead>
-        <tbody id="output">
-            <tr id="loading">
-                <td colspan="2">Loading...</td>
-            </tr>
-        </tbody>
-    </table>
+<table>
+  <thead>
+    <tr>
+      <th>Promise</th>
+      <th>Time Taken (Seconds)</th>
+    </tr>
+  </thead>
+  <tbody id="output">
+    <tr>
+      <td colspan="2">Loading...</td>
+    </tr>
+  </tbody>
+</table>
 
-    <script src="app.js"></script>
+<script>
+function createPromise(promiseNumber) {
+  return new Promise((resolve) => {
+    const randomDelay = Math.random() * 2 + 1; // Random between 1 and 3 seconds
+    setTimeout(() => {
+      resolve(randomDelay); // Resolve with the time taken
+    }, randomDelay * 1000);
+  });
+}
+
+const outputBody = document.getElementById('output');
+
+// Create three promises
+const promise1 = createPromise(1);
+const promise2 = createPromise(2);
+const promise3 = createPromise(3);
+
+// Record the start time
+const startTime = Date.now();
+
+Promise.all([promise1, promise2, promise3])
+  .then(times => {
+    // Calculate total time (longest promise resolution)
+    const totalTime = (Date.now() - startTime) / 1000;
+
+    // Clear the loading row
+    outputBody.innerHTML = '';
+
+    // Add each promise result as a table row
+    times.forEach((time, index) => {
+      const row = document.createElement('tr');
+      const promiseCell = document.createElement('td');
+      const timeCell = document.createElement('td');
+
+      promiseCell.innerText = `Promise ${index + 1}`;
+      timeCell.innerText = time.toFixed(3);
+
+      row.appendChild(promiseCell);
+      row.appendChild(timeCell);
+      outputBody.appendChild(row);
+    });
+
+    // Add the total row
+    const totalRow = document.createElement('tr');
+    const totalCell = document.createElement('td');
+    const timeTakenCell = document.createElement('td');
+
+    totalCell.innerText = 'Total';
+    timeTakenCell.innerText = totalTime.toFixed(3);
+
+    totalRow.appendChild(totalCell);
+    totalRow.appendChild(timeTakenCell);
+    outputBody.appendChild(totalRow);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    outputBody.innerHTML = '<tr><td colspan="2">Something went wrong!</td></tr>';
+  });
+</script>
+
 </body>
 </html>
